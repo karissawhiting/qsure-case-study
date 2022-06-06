@@ -12,9 +12,9 @@
 *.knit.md
 
 # ignore other types of data files
-*.xlsx
-*.xls
-*.csv
+#*.xlsx
+#*.xls
+#*.csv
 *.dta
 *.sas7bdat
 *.sav
