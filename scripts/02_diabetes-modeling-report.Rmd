@@ -2,6 +2,10 @@
 title: "Diabetes Risk Factors Analysis"
 author: "Karissa Whiting"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
+knit: (function(inputFile, encoding) {
+    rmarkdown::render(inputFile, 
+    output_dir = here::here("output"))
+     })
 output:
   html_document:
     theme: sandstone
