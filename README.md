@@ -7,7 +7,6 @@ Analysis of risk factors related to development of diabetes. Data is from Schrli
 - raw-data
 - scripts
     - 01_clean_data.R
-    - 02_diabetes-modeling-report.Rmd
     - misc
 - data
 - outputs
