@@ -18,7 +18,6 @@
 *.dta
 *.sas7bdat
 *.sav
-*.txt
 
 # ignore data folder/symbolic link/sensitive file
 data

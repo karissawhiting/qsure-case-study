@@ -23,7 +23,7 @@ outcome_raw <-  read.csv(here(
 
 # Clean Data -------------------------------------------------
 
-# rename variables --------
+# * rename variables --------
 
 names(variables_raw)
 
@@ -38,14 +38,14 @@ variables <- variables_raw %>%
 
 names(outcome_raw)
 
-# Join the two data sets ---------
+# * Join the two data sets ---------
 setdiff(outcome_raw$individual_id, variables$id)
 setdiff(variables$id, outcome_raw$individual_id)
 
 # TODO- Make a new dataframe called `df` and join the `variables` data frame to the `outcome_raw` data frame using a left_join()
   
 
-# Check for dupes --------------------
+# * Check for dupes --------------------
 
 # make a quick frequency table
 df %>% 
@@ -64,7 +64,7 @@ df %>%
 df <- df %>%
   distinct()
 
-# Check Variables -------------------
+# * Check Variables -------------------
 
 # TODO - what data type is each variable?
 
@@ -108,11 +108,11 @@ str(df)
 # ~~~* ADVANCED TIP *~~~~
 # an even better way to do the above code
 df <- df %>%
-  mutate_at(vars(stabilized_glucose, hdl, ratio_chol_hdl, waist),
-            ~as.numeric(.x))
+  mutate(across(c(stabilized_glucose, hdl, ratio_chol_hdl, waist),
+            ~as.numeric(.x)))
 
 
-# Clean categoricals -------------------------
+# * Clean categoricals -------------------------
 # inspect categoricals
 
 # which are categoricals?
@@ -164,26 +164,22 @@ map_dbl(df, ~sum(is.na(.x)))
 # Save Data -------------------------------------------------
 
 save(df, file = here(
-  "lesson3", 
-  "diabetes-case-study",
   "data", "diabetes.RData"))
 
 
 
-#------------------------------------------------------------------------------
+# Final Pipe------------------------------------------------------------------------------
 
 # ~~~* ADVANCED TIP *~~~~ 
 # Let's do all of the above in ONE LONG GLORIOUS PIPE!!! 
 
 variables_raw <- read_csv(
-  here("lesson3", 
-    "diabetes-case-study",
+  here(
     "raw-data",
     "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019.csv"))
 
 
-outcome_raw <-  read_excel(here("lesson3", 
-  "diabetes-case-study",
+outcome_raw <-  read_excel(here(
   "raw-data", 
   "outcome-diab-data_05062017_19-2019.xls"))
 
@@ -197,12 +193,12 @@ df <- variables_raw %>%
   distinct() %>%
   
   # coerce into numeric, coerced NA's were blank or missing
-  mutate_at(vars(stabilized_glucose, hdl, ratio_chol_hdl, waist),
-            ~as.numeric(.x)) %>%
+  mutate(across(c(stabilized_glucose, hdl, ratio_chol_hdl, waist),
+            ~as.numeric(.x))) %>%
   
   # make character all lowercase
-  mutate_at(vars(location,gender, frame),
-            ~tolower(.x)) %>%
+  mutate(across(c(location,gender, frame),
+            ~tolower(.x))) %>%
   
   # manually recode some factors
   mutate(location = fct_collapse(location, 
@@ -212,5 +208,8 @@ df <- variables_raw %>%
                                female = c("f", "female"), 
                                male = c("m", "male"))
   )
+
+save(df, file = here(
+  "data", "diabetes.RData"))
 
 
