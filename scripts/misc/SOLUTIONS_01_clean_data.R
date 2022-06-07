@@ -7,28 +7,14 @@ library(janitor)
 # Load Data -------------------------------------------------
 
 # ERROR - need file extension .csv (even though this isn't in the name)
-# variables_raw <- read_csv(
-#   here("lesson3", 
-#     "diabetes-case-study",
-#     "raw-data",
-#     "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019"))
-
-
 variables_raw <- read_csv(
-  here("lesson3", 
-    "diabetes-case-study",
-    "raw-data",
+  here("raw-data", 
     "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019.csv"))
 
 
 # ERROR - because it is an xls not a csv, use read_excel instead
-# outcome_raw <-  read_csv(here("lesson3", 
-#   "diabetes-case-study",
-#   "raw-data", 
-#   "outcome-diab-data_05062017_19-2019.xls"))
 
-outcome_raw <-  read_excel(here("lesson3", 
-  "diabetes-case-study",
+outcome_raw <-  read_excel(here(
   "raw-data", 
   "outcome-diab-data_05062017_19-2019.xls"))
 
@@ -40,10 +26,13 @@ outcome_raw <-  read_excel(here("lesson3",
 names(variables_raw)
 
 # ERROR - need backticks `Stabilized Glucose` because there is a space
-# variables_raw %>%
-#   rename("stabilized_glucode" = Stabilized Glucose)
+variables_raw %>%
+  rename("stabilized_glucose" = `Stabilized Glucose`)
 
 variables <- variables_raw %>%
+  janitor::clean_names() 
+
+variables <- variables %>%
   clean_names() %>%
   rename("ratio_chol_hdl" = ratio)
 

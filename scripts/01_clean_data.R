@@ -6,29 +6,19 @@ library(janitor)
 
 # Load Data -------------------------------------------------
 
-# ERROR 
-# variables_raw <- read_csv(
-#   here("lesson3",
-#     "diabetes-case-study",
-#     "raw-data",
-#     "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019"))
 
+# !! ERROR 
 variables_raw <- read_csv(
-  here("lesson3", 
-    "diabetes-case-study",
+  here(
     "raw-data",
-    "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019.csv"))
+    "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019"))
 
-# ERROR 
-# outcome_raw <-  read_csv(here("lesson3",
-#   "diabetes-case-study",
-#   "raw-data",
-#   "outcome-diab-data_05062017_19-2019.xls"))
 
-outcome_raw <-  read_excel(here("lesson3", 
-  "diabetes-case-study",
+# !! ERROR
+outcome_raw <-  read.csv(here(
   "raw-data", 
   "outcome-diab-data_05062017_19-2019.xls"))
+
 
 
 # Clean Data -------------------------------------------------
@@ -37,9 +27,9 @@ outcome_raw <-  read_excel(here("lesson3",
 
 names(variables_raw)
 
-# TODO- ERROR - WHY?
-# variables_raw %>%
-#   rename("stabilized_glucode" = `Stabilized Glucose`)
+# !! ERROR - WHY?
+variables_raw %>%
+  rename("stabilized_glucose" = Stabilized Glucose)
 
 variables <- variables_raw %>%
   janitor::clean_names() 
