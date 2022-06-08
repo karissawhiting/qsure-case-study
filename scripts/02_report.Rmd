@@ -1,0 +1,121 @@
+---
+title: "QSURE Statistical analysis"
+author: "Michael and Karissa"
+knit: (function(inputFile, encoding) { 
+      out_dir <- 'output';
+      rmarkdown::render(inputFile,
+                        encoding=encoding, 
+                        output_file=file.path(here::here(), out_dir, 'analysis.html')) })
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	fig.align = 'center',
+	fig.width = 12,
+	fig.height = 10
+)
+
+library(tidyverse)
+library(gtsummary)
+library(survival)
+library(survminer)
+library(here)
+
+
+load(file = here(
+  "data", "diabetes.RData"))
+
+
+```
+
+
+## Summarizing data 
+
+This is a common table 1 you would often see in manuscripts. Below I am staratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. You can remove the p-values, and overall column if you do not want them there. 
+
+```{r}
+
+tbl_summary(df
+            ,include = -id
+            ,by = gender) %>% 
+  bold_labels() %>% 
+  add_overall() %>% 
+  add_p()
+      
+
+```
+
+### Summarize continious data
+
+Another common way to summarize data would be to summarize a continuous variable by one or more categorical variables. 
+
+```{r}
+tbl_continuous(df,
+               variable = stabilized_glucose,
+               by = gender,
+               include = location)
+
+
+```
+
+
+### Reporting data with ggplot2
+
+`ggplot2` is one of the most common ways to visualize data in R. 
+<br>
+Components of ggplot:
+<br>
+- data: data.frame/tibble 
+- geom_* :type of plot (* means there are multiple options [e.g - geom_bar, geom_point])
+  - these geometric objects tell ggplot what kind of graph you are building 
+  - scatter plot, box plot, bar plot, etc...
+- aesthetics (aes): tells ggplot how to represent the data
+- stats: can transform data to be plotted 
+- theme: handles general graphing options (color background, font sizes)
+- scale: controls options between data and aes, plot limits, colors, line types, etc...
+<br>
+Necessary components of ggplot
+<br>
+- only need data, geom_* and aesthetics to make a graph, the rest are augments of this base plot 
+
+```{r}
+
+sumdf <- df %>% 
+          group_by(location, gender) %>% 
+          summarise(age = mean(age, na.rm = TRUE)) %>% 
+          ungroup() %>% 
+          mutate(var = paste(location, gender, sep  = " ")) %>% 
+          filter(!is.na(location))
+
+
+ggplot(sumdf) +
+    geom_bar(aes(x= var, y = age, fill = var),stat = "identity") +
+    scale_x_discrete(" ") +
+    scale_fill_manual(" ", values = c("black","blue","grey","red"))+
+    scale_y_continuous("Age", limits = c(0,60)) +
+    theme_bw()
+
+```
+
+You can also represent the data in a more sophisticated way with facets. 
+
+
+```{r}
+
+ggplot(sumdf) +
+    geom_bar(aes(x= location, y = age, fill = location),stat = "identity") +
+    facet_grid(.~gender)+
+    scale_x_discrete(" ") +
+    scale_fill_manual(" ", values = c("black","blue"))+
+    scale_y_continuous("Age", limits = c(0,60)) +
+    theme_bw()
+
+```
+
+
+There are many types of geom_* and it is best to look at them from the https://ggplot2.tidyverse.org/ website. 
