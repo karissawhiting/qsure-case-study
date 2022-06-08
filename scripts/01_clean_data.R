@@ -23,7 +23,7 @@ outcome_raw <-  read.csv(here(
 
 # Clean Data -------------------------------------------------
 
-# * rename variables --------
+# * Rename variables --------
 
 names(variables_raw)
 
@@ -64,7 +64,7 @@ df %>%
 df <- df %>%
   distinct()
 
-# * Check Variables -------------------
+# * Check variables -------------------
 
 # TODO - what data type is each variable?
 
