@@ -12,7 +12,7 @@ output: html_document
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(
-	echo = FALSE,
+	echo = TRUE,
 	message = FALSE,
 	warning = FALSE,
 	fig.align = 'center',
@@ -25,7 +25,7 @@ library(gtsummary)
 library(survival)
 library(survminer)
 library(here)
-
+library(labelled)
 
 load(file = here(
   "data", "diabetes.RData"))
@@ -119,3 +119,112 @@ ggplot(sumdf) +
 
 
 There are many types of geom_* and it is best to look at them from the https://ggplot2.tidyverse.org/ website. 
+
+
+
+## Generating univariate statistics 
+
+Sometimes it is important to test your outcome of interest against many covariates. We can use gtsummary to help with this instead of writing several models out all at once. The code below you can input all the covariates and the outcome, specify the method type and the outcome and it will generate a table of unviariate models neatly displayed. 
+
+```{r}
+
+df %>% 
+    select(-id) %>% 
+tbl_uvregression(method = lm,
+                 y = stabilized_glucose
+)
+
+
+```
+<br>
+Similarly we can do this for many different model types. Here is an example with logistic regression.
+<br>
+```{r}
+
+df <- df %>% 
+    mutate(gluc_di = ifelse(stabilized_glucose < median(stabilized_glucose, na.rm = TRUE),0,1))
+
+df %>% 
+    select(-stabilized_glucose,-id) %>% 
+    tbl_uvregression(method = glm,
+                     y = gluc_di,
+                     method.args = list(family = binomial),
+                     exponentiate = TRUE)
+
+```
+
+
+## Multivariate statistics 
+<br>
+Lets predict stabilized glucose from a few predictors. 
+<br>
+```{r}
+#will use weight, ratio_chol_hdl, age
+var_label(df$age) <- "Age"
+var_label(df$weight) <- "Weight (lbs)"
+var_label(df$ratio_chol_hdl) <- "Ratio Chol/HDL"
+
+mod1 <- lm(stabilized_glucose ~ age + weight + ratio_chol_hdl, data = df)
+
+tmod1 <- tbl_regression(mod1) %>% 
+    bold_labels()
+
+tmod1
+```
+<br>
+We can also look at this with a logistic model
+<br>
+```{r}
+
+mod2 <- glm(gluc_di ~ age + weight + ratio_chol_hdl, data = df, family = binomial)
+
+tmod2 <- tbl_regression(mod2, exponentiate = TRUE) %>% 
+    bold_labels()
+
+tmod2
+```
+<br>
+Lets combine the results
+
+```{r}
+
+
+tbl_merge(list(tmod1,tmod2), tab_spanner = c("Linear","Logistic"))
+
+```
+
+
+
+## Switching gears to a survival model
+
+### Generating survival curves
+
+Using the `survfit` with `Surv` will create Kaplan-Meier estimates. From these estimates we can create Kaplan-Meier survival curves. The `survminer` package provides a simple interface to create these curves. 
+
+```{r}
+
+cfit <- survfit(Surv(time, status) ~ sex,lung)
+
+#cfit
+
+ggsurvplot(cfit, data = lung,
+           pval = TRUE,
+           legend.labs = c("Male", "Female"),
+           legend.title = "",
+           palette = c("red","blue"))
+
+```
+
+## Cox model
+
+
+
+```{r}
+
+coxmod <- coxph(Surv(time,status) ~ age + sex, data =lung)
+
+
+tbl_regression(coxmod, exponentiate = TRUE)
+
+
+```
