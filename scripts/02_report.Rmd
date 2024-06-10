@@ -228,3 +228,4 @@ tbl_regression(coxmod, exponentiate = TRUE)
 
 
 ```
+
