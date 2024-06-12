@@ -1,4 +1,4 @@
-# QSURE 2023 Coding Case Study
+# QSURE 2024 Coding Case Study
 
 Analysis of risk factors related to development of diabetes. Data is from Schrling et al. 1997. 
 
