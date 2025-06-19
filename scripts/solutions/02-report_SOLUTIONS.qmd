@@ -34,7 +34,7 @@ load(file = here("data", "diabetes.RData"))
 
 ## Summarizing data 
 
-This is a common table 1 you would often see in manuscripts. Below I am stratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. You can remove the p-values, and overall column if you do not want them there. 
+This is a common table 1 you would often see in manuscripts. Below I am stratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. 
 
 ```{r}
 tbl_summary(df,

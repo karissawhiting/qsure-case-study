@@ -8,6 +8,7 @@ execute:
   error: true
 format:
   html:
+    toc: true
     default: true
     fig-align: "center"
     fig-width: 12
@@ -34,14 +35,14 @@ load(file = here("data", "diabetes.RData"))
 
 ## Summarizing data 
 
-This is a common table 1 you would often see in manuscripts. Below I am stratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. You can remove the p-values, and overall column if you do not want them there. 
+This is a common table 1 you would often see in manuscripts. Below I am stratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. 
 
 **TODO:** add `by = gender` argument, pipe result into `bold_labels()`, then `add_overall()`, then and `add_p()`
 
 **HINT:** Documentation: [https://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html#gtsummary-functions-to-add-information]([https://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html#gtsummary-functions-to-add-information])
 
 ```{r}
-tbl_summary(df, include = -id, by = gender) 
+tbl_summary(df, include = -id) 
 
 ```
 
