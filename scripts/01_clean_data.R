@@ -11,11 +11,11 @@ library(janitor)
 variables_raw <- read_csv(
   here(
     "raw-data",
-    "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019"))
+    "Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019.csv"))
 
 
 # !! ERROR
-outcome_raw <-  read.csv(here(
+outcome_raw <-  read_excel(here(
   "raw-data", 
   "outcome-diab-data_05062017_19-2019.xls"))
 
@@ -29,21 +29,25 @@ names(variables_raw)
 
 # !! ERROR - WHY?
 variables_raw %>%
-  rename("stabilized_glucose" = Stabilized Glucose)
+  rename("stabilized_glucose" = `Stabilized Glucose`)
 
 variables <- variables_raw %>%
   janitor::clean_names() 
 
 # TODO- Rename the "ratio" column to "ratio_chol_hdl" using rename() function
+variables <- variables %>%
+  rename("ratio_chol_hdl" = ratio)
 
 names(outcome_raw)
 
 # * Join the two data sets ---------
 setdiff(outcome_raw$individual_id, variables$id)
 setdiff(variables$id, outcome_raw$individual_id)
+intersect(variables$id, outcome_raw$individual_id) %>% length()
 
 # TODO- Make a new dataframe called `df` and join the `variables` data frame to the `outcome_raw` data frame using a left_join()
-  
+df <- variables %>% 
+  left_join(outcome_raw, by = c("id" = "individual_id"))
 
 # * Check for dupes --------------------
 
@@ -67,7 +71,8 @@ df <- df %>%
 # * Check variables -------------------
 
 # TODO - what data type is each variable?
-
+str(df)
+glimpse(df)
 
 # check columns that should be numeric but are being coerced 
 df %>%
@@ -98,8 +103,9 @@ df %>%
   map(., ~check_coercion(.x))
 
 # TODO- now that we've checked this, we can safely convert these cols using as.numeric()
-
-
+df <- df %>%
+  mutate(across(c(stabilized_glucose, hdl, ratio_chol_hdl, waist),
+                ~as.numeric(.x)))
 
 
 glimpse(df)
@@ -127,16 +133,19 @@ df %>%
   count()
 
 # another way to do this
-# table(df$location)
+table(df$location)
 
 # From the above, I can already tell that capitalizations are going to be a problem. 
 # TODO - Let's mutate location, gender and frame to lowercase using tolower(). 
-
-
+df <- df %>%
+  mutate(across(c(location, gender, frame), tolower))
 
 
 df %>%
   group_by(gender) %>%
+  count()
+df %>%
+  group_by(location) %>%
   count()
 
 df %>%

@@ -1,34 +1,32 @@
 ---
-title: "QSURE Statistical analysis"
-author: "Michael and Karissa"
-knit: (function(inputFile, encoding) { 
-      out_dir <- 'output';
-      rmarkdown::render(inputFile,
-                        encoding=encoding, 
-                        output_file=file.path(here::here(), out_dir, 'analysis.html')) })
-output: html_document
+title: "Example Statistical Analysis"
+author: "Karissa Whiting"
+execute:
+  echo: false
+  message: false
+  warning: false
+  error: true
+format:
+  html:
+    default: true
+    fig-align: "center"
+    fig-width: 12
+    fig-height: 10
 ---
+
 
 ```{r setup, include=FALSE}
 
-knitr::opts_chunk$set(
-	echo = TRUE,
-	message = FALSE,
-	warning = FALSE,
-	fig.align = 'center',
-	fig.width = 12,
-	fig.height = 10
-)
 
 library(tidyverse)
 library(gtsummary)
 library(survival)
 library(survminer)
 library(here)
+library(ggsurvfit)
 library(labelled)
 
-load(file = here(
-  "data", "diabetes.RData"))
+load(file = here("data", "diabetes.RData"))
 
 
 ```
@@ -36,17 +34,16 @@ load(file = here(
 
 ## Summarizing data 
 
-This is a common table 1 you would often see in manuscripts. Below I am staratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. You can remove the p-values, and overall column if you do not want them there. 
+This is a common table 1 you would often see in manuscripts. Below I am stratifying the data by gender and adding a p value. The specific tests will be specified in the footnote. You can remove the p-values, and overall column if you do not want them there. 
 
 ```{r}
-
-tbl_summary(df
-            ,include = -id
-            ,by = gender) %>% 
-  bold_labels() %>% 
-  add_overall() %>% 
+tbl_summary(df,
+  include = -id,
+  by = gender
+) %>%
+  bold_labels() %>%
+  add_overall() %>%
   add_p()
-      
 
 ```
 
@@ -58,8 +55,7 @@ Another common way to summarize data would be to summarize a continuous variable
 tbl_continuous(df,
                variable = stabilized_glucose,
                by = gender,
-               include = location)
-
+               include = c(location, frame))
 
 ```
 
@@ -130,19 +126,24 @@ Sometimes it is important to test your outcome of interest against many covariat
 
 df %>% 
     select(-id) %>% 
-tbl_uvregression(method = lm,
-                 y = stabilized_glucose
-)
+  tbl_uvregression(
+    method = lm,
+    y = stabilized_glucose)
 
 
 ```
-<br>
+
+
 Similarly we can do this for many different model types. Here is an example with logistic regression.
-<br>
+
+
 ```{r}
 
+
+median_sg <- median(df$stabilized_glucose, na.rm = TRUE)
+
 df <- df %>% 
-    mutate(gluc_di = ifelse(stabilized_glucose < median(stabilized_glucose, na.rm = TRUE),0,1))
+    mutate(gluc_di = ifelse(stabilized_glucose < median_sg, 0, 1))
 
 df %>% 
     select(-stabilized_glucose,-id) %>% 
@@ -150,14 +151,17 @@ df %>%
                      y = gluc_di,
                      method.args = list(family = binomial),
                      exponentiate = TRUE)
-
 ```
 
 
-## Multivariate statistics 
+## Multivariate Statistics 
+
 <br>
+
 Lets predict stabilized glucose from a few predictors. 
+
 <br>
+
 ```{r}
 #will use weight, ratio_chol_hdl, age
 var_label(df$age) <- "Age"
@@ -171,9 +175,9 @@ tmod1 <- tbl_regression(mod1) %>%
 
 tmod1
 ```
-<br>
+
 We can also look at this with a logistic model
-<br>
+
 ```{r}
 
 mod2 <- glm(gluc_di ~ age + weight + ratio_chol_hdl, data = df, family = binomial)
@@ -183,7 +187,7 @@ tmod2 <- tbl_regression(mod2, exponentiate = TRUE) %>%
 
 tmod2
 ```
-<br>
+
 Lets combine the results
 
 ```{r}
@@ -195,37 +199,43 @@ tbl_merge(list(tmod1,tmod2), tab_spanner = c("Linear","Logistic"))
 
 
 
-## Switching gears to a survival model
+## Survival Models
 
 ### Generating survival curves
 
-Using the `survfit` with `Surv` will create Kaplan-Meier estimates. From these estimates we can create Kaplan-Meier survival curves. The `survminer` package provides a simple interface to create these curves. 
+Using the `survfit` with `Surv` will create Kaplan-Meier estimates. From these estimates we can create Kaplan-Meier survival curves. The `ggsurvfit` package provides a simple interface to create these curves. 
 
 ```{r}
 
-cfit <- survfit(Surv(time, status) ~ sex,lung)
-
-#cfit
-
-ggsurvplot(cfit, data = lung,
-           pval = TRUE,
-           legend.labs = c("Male", "Female"),
-           legend.title = "",
-           palette = c("red","blue"))
+cfit <- survfit2(Surv(time, status) ~ sex,lung)
+ggsurvfit(cfit)
 
 ```
 
+
 ## Cox model
-
-
 
 ```{r}
 
 coxmod <- coxph(Surv(time,status) ~ age + sex, data =lung)
-
-
 tbl_regression(coxmod, exponentiate = TRUE)
 
 
 ```
+
+
+```{r}
+lung %>%
+  tbl_uvregression(
+    method = coxph, 
+    y = Surv(time, status), 
+    exponentiate = TRUE
+  ) %>%
+  bold_labels()
+```
+
+## Other Supported Models
+
+[https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html?q=support#supported-models](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html?q=support#supported-models)
+
 
