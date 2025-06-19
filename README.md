@@ -1,4 +1,4 @@
-# QSURE 2024 Coding Case Study
+# QSURE 2025 Coding Case Study
 
 Analysis of risk factors related to development of diabetes. Data is from Schrling et al. 1997. 
 
@@ -7,7 +7,7 @@ Analysis of risk factors related to development of diabetes. Data is from Schrli
 - raw-data
 - scripts
     - 01_clean_data.R
-    - misc
+    - 02_report.qmd
 - data
 - outputs
   - figures
@@ -15,9 +15,9 @@ Analysis of risk factors related to development of diabetes. Data is from Schrli
   
 ## Data Versions
 
-### 2022-06-06
+### 2025-06-06
 
 - `outcome-diab-data_05062017_19-2019.xls` - contains the outcome variable data
 - `Diabetes final_draft 2018 FINAL_FOR_REAL_draftydraft_v2.01-2019.csv` - contains the covariate data
 
-...
+
